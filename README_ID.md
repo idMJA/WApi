@@ -44,7 +44,7 @@
 ## 🚀 Memulai Cepat
 
 ### Prasyarat
-- **Bun** >= 1.0.0
+- **Bun** >= 1.2.0
 - **Node.js** >= 18.0.0 (untuk kompatibilitas)
 - **SQLite** (termasuk dengan Bun)
 

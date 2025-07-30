@@ -44,7 +44,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Bun** >= 1.0.0
+- **Bun** >= 1.2.0
 - **Node.js** >= 18.0.0 (for compatibility)
 - **SQLite** (included with Bun)
 
