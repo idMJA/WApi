@@ -52,7 +52,7 @@
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/idMJA/WApi.git
 cd WApi
 
 # Install dependencies
