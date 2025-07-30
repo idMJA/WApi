@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp OTP API - Admin Panel</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzggMiAyIDYuNDc4IDIgMTJDMiAxNy41MjIgNi40NzggMjIgMTIgMjJDMTcuNTIyIDIyIDIyIDE3LjUyMiAyMiAxMkMyMiA2LjQ3OCAxNy41MjIgMiAxMiAyWk0xNiAxM0g4VjExSDEySDEzVjEzSDE2WiIgZmlsbD0iIzI1RDM2NiIvPgo8L3N2Zz4K">
+    <style>
+        :root {
+            /* Modern Dark Theme - Next.js inspired */
+            --primary-color: #0070f3;
+            --primary-hover: #0056b3;
+            --success-color: #00d924;
+            --error-color: #ff0080;
+            --warning-color: #f5a623;
+            --info-color: #0070f3;
+            
+            /* Background Colors */
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #0a0a0a;
+            --bg-hover: #1a1a1a;
+            
+            /* Text Colors */
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            /* Border Colors */
+            --border-primary: #27272a;
+            --border-secondary: #18181b;
+            --border-accent: #3f3f46;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+            
+            /* Accents */
+            --accent-blue: #0070f3;
+            --accent-green: #00d924;
+            --accent-red: #ff0080;
+            --accent-yellow: #f5a623;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 0;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .status-card {
+            text-align: center;
+        }
+
+        .status-indicator {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .status-connected {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .status-connecting {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .status-disconnected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.05); 
+                opacity: 0.8;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 40px;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border-color: var(--border-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 24px;
+            border: 1px dashed var(--border-primary);
+            border-radius: 12px;
+            margin: 20px 0;
+            background: var(--bg-card);
+        }
+
+        .qr-code {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border-primary);
+            border-top: 2px solid var(--text-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-primary);
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-primary);
+            font-size: 0.875rem;
+        }
+
+        .security-notice {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: #FFF3E0;
+        }
+
+        .security-notice h3 {
+            color: var(--warning-color);
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 WhatsApp OTP API</h1>
+            <p>Admin Panel - Production Dashboard</p>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+            <h3>⚠️ Production Security</h3>
+            <p>This panel is for admin use only. Make sure access to this page is restricted with proper authentication in the production environment.</p>
+        </div>
+
+        <div class="grid">
+            <!-- Status Panel -->
+            <div class="card status-card">
+                <h2>📊 Connection Status</h2>
+                <div id="statusIndicator" class="status-indicator status-connecting">
+                    🔄
+                </div>
+                <div id="statusText">Checking connection...</div>
+                <div id="qrContainer" class="qr-container" style="display: none;">
+                    <h3>📱 Scan QR Code</h3>
+                    <div id="qrCode" class="qr-code"></div>
+                    <p>Buka WhatsApp → Linked Devices → Link a Device</p>
+                </div>
+                <div class="control-buttons">
+                    <button id="restartBtn" class="btn btn-secondary">🔄 Restart</button>
+                    <button id="logoutBtn" class="btn btn-danger">🚪 Logout</button>
+                </div>
+            </div>
+
+            <!-- OTP Testing Panel -->
+            <div class="card">
+                <h2>📤 Test OTP Sending</h2>
+                <form id="otpForm">
+                    <div class="form-group">
+                        <label for="phoneNumber">WhatsApp Number</label>
+                        <input type="tel" id="phoneNumber" class="form-control" 
+                               placeholder="Example: 08123456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="websiteName">Website Name</label>
+                        <input type="text" id="websiteName" class="form-control" 
+                               placeholder="Example: My Website" value="Admin Test">
+                    </div>
+                    <div class="form-group">
+                        <label for="otpCode">OTP Code</label>
+                        <input type="text" id="otpCode" class="form-control" 
+                               placeholder="Enter OTP code (4-8 digits)" required>
+                        <small>OTP code to be sent to the user</small>
+                    </div>
+                    <button type="submit" id="sendBtn" class="btn btn-primary btn-full">
+                        📱 Send OTP Test
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Database Stats -->
+        <div class="card">
+            <h2>📈 Database Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalKeys">-</div>
+                    <div class="stat-label">Total Auth Keys</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="dbSize">-</div>
+                    <div class="stat-label">Database Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="preKeys">-</div>
+                    <div class="stat-label">Pre Keys</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="sessions">-</div>
+                    <div class="stat-label">Active Sessions</div>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button id="refreshStatsBtn" class="btn btn-secondary">🔄 Refresh Stats</button>
+                <button id="clearAuthBtn" class="btn btn-danger" style="margin-left: 10px;">🗑️ Clear Auth Data</button>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing request...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="result" style="display: none;"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                WhatsApp OTP API - Built using
+                <a href="https://bun.com/" target="_blank" rel="noopener" style="color:#f5e9da;text-decoration:underline;">Bun</a>
+                +
+                <a href="https://elysiajs.com/" target="_blank" rel="noopener" style="color:#a259ff;text-decoration:underline;">ElysiaJS</a>
+                +
+                <a href="https://orm.drizzle.team/" target="_blank" rel="noopener" style="color:#00d924;text-decoration:underline;">Drizzle ORM</a>
+            </p>
+            <p>
+                Made by <a href="https://mjba.my" target="_blank" rel="noopener" style="color:#ff69b4;text-decoration:underline;">iaMJ / アーリャ</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - CHANGE THESE FOR PRODUCTION
+        const CONFIG = {
+            API_BASE_URL: window.location.origin, // Auto-detect for production
+            REFRESH_INTERVAL: 15000, // 15 seconds
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 2000
+        };
+
+        class AdminPanel {
+            constructor() {
+                this.retryCount = 0;
+                this.isConnected = false;
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.checkStatus();
+                this.loadStats();
+                this.startAutoRefresh();
+            }
+
+            bindEvents() {
+                document.getElementById('otpForm').addEventListener('submit', (e) => this.sendOTP(e));
+                document.getElementById('restartBtn').addEventListener('click', () => this.restart());
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('refreshStatsBtn').addEventListener('click', () => this.loadStats());
+                document.getElementById('clearAuthBtn').addEventListener('click', () => this.clearAuth());
+            }
+
+            async makeRequest(endpoint, options = {}) {
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        },
+                        ...options
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Request failed for ${endpoint}:`, error);
+                    this.showAlert(`Network error: ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+
+            async checkStatus() {
+                try {
+                    const data = await this.makeRequest('/status');
+                    this.updateStatusDisplay(data);
+                    this.retryCount = 0; // Reset on success
+                } catch (error) {
+                    this.handleConnectionError();
+                }
+            }
+
+            updateStatusDisplay(data) {
+                const indicator = document.getElementById('statusIndicator');
+                const statusText = document.getElementById('statusText');
+                const qrContainer = document.getElementById('qrContainer');
+
+                if (data.connected) {
+                    indicator.className = 'status-indicator status-connected';
+                    indicator.textContent = '✅';
+                    statusText.innerHTML = '<strong>WhatsApp Connected</strong><br>API ready to send messages';
+                    qrContainer.style.display = 'none';
+                    this.isConnected = true;
+                } else {
+                    this.isConnected = false;
+                    switch (data.connectionState) {
+                        case 'connecting':
+                            indicator.className = 'status-indicator status-connecting';
+                            indicator.textContent = '🔄';
+                            statusText.innerHTML = '<strong>Connecting...</strong><br>Please wait or scan QR code';
+                            if (data.hasQR) {
+                                this.showQRCode();
+                            }
+                            break;
+                        case 'logged_out':
+                            indicator.className = 'status-indicator status-disconnected';
+                            indicator.textContent = '🚪';
+                            statusText.innerHTML = '<strong>Logged Out</strong><br>Click restart to reconnect';
+                            qrContainer.style.display = 'none';
+                            break;
+                        default:
+                            indicator.className = 'status-indicator status-disconnected';
+                            indicator.textContent = '❌';
+                            statusText.innerHTML = '<strong>Disconnected</strong><br>Connection failed';
+                            qrContainer.style.display = 'none';
+                    }
+                }
+            }
+
+            async showQRCode() {
+                try {
+                    const data = await this.makeRequest('/qr');
+                    if (data.success && data.qrCode) {
+                        const qrContainer = document.getElementById('qrContainer');
+                        const qrCodeDiv = document.getElementById('qrCode');
+                        
+                        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(data.qrCode)}`;
+                        qrCodeDiv.innerHTML = `<img src="${qrImageUrl}" alt="QR Code" style="max-width: 100%; height: auto;">`;
+                        qrContainer.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Failed to load QR code:', error);
+                }
+            }
+
+            async sendOTP(event) {
+                event.preventDefault();
+                
+                if (!this.isConnected) {
+                    this.showAlert('WhatsApp is not connected. Please wait for connection.', 'error');
+                    return;
+                }
+
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                const websiteName = document.getElementById('websiteName').value.trim();
+                const otpCode = document.getElementById('otpCode').value.trim();
+
+                // Validation
+                if (!phoneNumber || !otpCode) {
+                    this.showAlert('Please fill in all required fields.', 'error');
+                    return;
+                }
+
+                if (!/^\d{4,8}$/.test(otpCode)) {
+                    this.showAlert('OTP must be 4-8 digits.', 'error');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    const data = await this.makeRequest('/send-otp', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            phoneNumber,
+                            websiteName: websiteName || 'Admin Test',
+                            otp: otpCode
+                        })
+                    });
+
+                    if (data.success) {
+                        this.showAlert(`
+                            <strong>✅ OTP Sent Successfully!</strong><br>
+                            <strong>Phone:</strong> ${data.data.phoneNumber}<br>
+                            <strong>OTP:</strong> ${otpCode}<br>
+                            <strong>Website:</strong> ${data.data.websiteName}<br>
+                            <strong>Time:</strong> ${new Date(data.data.timestamp).toLocaleString('id-ID')}
+                        `, 'success');
+                        
+                        // Clear form
+                        document.getElementById('otpForm').reset();
+                        document.getElementById('websiteName').value = 'Admin Test';
+                    } else {
+                        this.showAlert(`Failed to send OTP: ${data.message}`, 'error');
+                    }
+                } catch (error) {
+                    this.showAlert('Failed to send OTP. Please try again.', 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async restart() {
+                const btn = document.getElementById('restartBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '🔄 Restarting...';
+                btn.disabled = true;
+
+                try {
+                    await this.makeRequest('/restart', { method: 'POST' });
+                    this.showAlert('WhatsApp connection restarted successfully.', 'info');
+                    setTimeout(() => this.checkStatus(), 2000);
+                } catch (error) {
+                    this.showAlert('Failed to restart connection.', 'error');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            async logout() {
+                if (!confirm('Are you sure you want to logout from WhatsApp? This will require scanning QR code again.')) {
+                    return;
+                }
+
+                const btn = document.getElementById('logoutBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '🚪 Logging out...';
+                btn.disabled = true;
+
+                try {
+                    await this.makeRequest('/logout', { method: 'POST' });
+                    this.showAlert('Successfully logged out from WhatsApp.', 'info');
+                    this.checkStatus();
+                } catch (error) {
+                    this.showAlert('Failed to logout.', 'error');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            async loadStats() {
+                try {
+                    const data = await this.makeRequest('/auth/stats');
+                    if (data.success) {
+                        document.getElementById('totalKeys').textContent = data.data.totalKeys;
+                        document.getElementById('dbSize').textContent = this.formatBytes(data.data.dbSize);
+                        
+                        // Additional stats would require new endpoints
+                        document.getElementById('preKeys').textContent = '-';
+                        document.getElementById('sessions').textContent = '-';
+                    }
+                } catch (error) {
+                    console.error('Failed to load stats:', error);
+                }
+            }
+
+            async clearAuth() {
+                if (!confirm('Are you sure you want to clear all authentication data? This will logout WhatsApp and require QR scan again.')) {
+                    return;
+                }
+
+                const btn = document.getElementById('clearAuthBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '🗑️ Clearing...';
+                btn.disabled = true;
+
+                try {
+                    await this.makeRequest('/auth/clear', { method: 'POST' });
+                    this.showAlert('Authentication data cleared successfully.', 'info');
+                    this.checkStatus();
+                    this.loadStats();
+                } catch (error) {
+                    this.showAlert('Failed to clear authentication data.', 'error');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            handleConnectionError() {
+                if (this.retryCount < CONFIG.MAX_RETRIES) {
+                    this.retryCount++;
+                    setTimeout(() => this.checkStatus(), CONFIG.RETRY_DELAY);
+                } else {
+                    const indicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    
+                    indicator.className = 'status-indicator status-disconnected';
+                    indicator.textContent = '⚠️';
+                    statusText.innerHTML = '<strong>API Server Unavailable</strong><br>Cannot connect to the API server';
+                }
+            }
+
+            startAutoRefresh() {
+                setInterval(() => {
+                    this.checkStatus();
+                }, CONFIG.REFRESH_INTERVAL);
+            }
+
+            showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'block' : 'none';
+            }
+
+            showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.innerHTML = `
+                    <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+                    <div>${message}</div>
+                `;
+
+                const result = document.getElementById('result');
+                result.innerHTML = '';
+                result.appendChild(alertDiv);
+                result.style.display = 'block';
+
+                // Auto-hide after 5 seconds for success messages
+                if (type === 'success') {
+                    setTimeout(() => {
+                        result.style.display = 'none';
+                    }, 5000);
+                }
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminPanel();
+        });
+
+        // Set environment status
+        document.getElementById('envStatus').textContent = 
+            window.location.hostname === 'localhost' ? 'Development' : 'Production';
+    </script>
+</body>
+</html>
